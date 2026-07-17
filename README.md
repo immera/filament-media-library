@@ -1,6 +1,6 @@
 # Filament Media Library
 
-A folder-based media library and picker field for [Filament](https://filamentphp.com) v4, built on top of [Spatie Media Library](https://spatie.be/docs/laravel-medialibrary).
+A folder-based media library and picker field for [Filament](https://filamentphp.com) v4 and v5, built on top of [Spatie Media Library](https://spatie.be/docs/laravel-medialibrary).
 
 ## Features
 
