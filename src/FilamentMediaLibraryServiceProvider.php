@@ -2,6 +2,8 @@
 
 namespace Immera\FilamentMediaLibrary;
 
+use Filament\Support\Assets\Css;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Immera\FilamentMediaLibrary\Livewire\MediaPickerBrowser;
@@ -16,6 +18,10 @@ class FilamentMediaLibraryServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'filament-media-library');
+
+        FilamentAsset::register([
+            Css::make('filament-media-library-styles', __DIR__.'/../resources/dist/filament-media-library.css'),
+        ], package: 'immera/filament-media-library');
 
         Livewire::component('filament-media-library-picker-browser', MediaPickerBrowser::class);
 

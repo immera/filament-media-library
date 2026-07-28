@@ -15,10 +15,11 @@ A folder-based media library and picker field for [Filament](https://filamentphp
 composer require immera/filament-media-library
 ```
 
-This package builds on [Spatie Media Library](https://spatie.be/docs/laravel-medialibrary), which doesn't run its own migration automatically. If your app doesn't already have a `media` table, publish and run it before migrating:
+This package builds on [Spatie Media Library](https://spatie.be/docs/laravel-medialibrary) and [Spatie Tags](https://github.com/spatie/laravel-tags), neither of which run their migrations automatically. If your app doesn't already have `media` and `tags`/`taggables` tables, publish and run them:
 
 ```bash
 php artisan vendor:publish --provider="Spatie\MediaLibrary\MediaLibraryServiceProvider" --tag="medialibrary-migrations"
+php artisan vendor:publish --provider="Spatie\Tags\TagsServiceProvider" --tag="tags-migrations"
 php artisan migrate
 ```
 
@@ -37,23 +38,19 @@ public function panel(Panel $panel): Panel
 }
 ```
 
+Publish Filament's assets so this package's compiled CSS is copied into your `public/` directory:
+
+```bash
+php artisan filament:assets
+```
+
+No Vite/Node setup is required for this — the package ships a precompiled, self-contained stylesheet and registers it with Filament directly. Re-run this command whenever you update the package. If your app's `composer.json` has a `post-autoload-dump` script calling `@php artisan filament:upgrade` (added by `filament:install`), this happens automatically on every `composer update`.
+
 Optionally publish the default PDF thumbnail placeholder image to customize it:
 
 ```bash
 php artisan vendor:publish --tag=filament-media-library-assets
 ```
-
-### Styling
-
-This package's views use Tailwind utility classes that aren't part of Filament's default precompiled CSS. If your panel isn't already using a [custom theme](https://filamentphp.com/docs/panels/themes), create one and add this package's views to its `@source` paths, e.g. in `resources/css/filament/admin/theme.css`:
-
-```css
-@import '../../../../vendor/filament/filament/resources/css/theme.css';
-
-@source '../../../../vendor/immera/filament-media-library/resources/views/**/*';
-```
-
-Then register the theme on your panel with `->viteTheme('resources/css/filament/admin/theme.css')` and rebuild your assets. Without this, elements like the "no media" placeholder icon render unstyled at their native SVG size instead of the intended small icon.
 
 ## Usage
 
