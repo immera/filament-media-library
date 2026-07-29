@@ -1,3 +1,11 @@
+/*
+ * Forward-declare Filament's full layer order so that, when this stylesheet
+ * loads before Filament's own CSS, "base" and "components" don't get appended
+ * after "utilities" in the global cascade (which would let Filament's base
+ * reset override our utility classes site-wide).
+ */
+@layer properties, theme, base, components, utilities;
+
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
