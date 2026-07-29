@@ -187,7 +187,7 @@
 
         @if ($selectedItem)
             @php
-                $selectedThumb = $selectedItem->getFirstMediaUrl('library', '800');
+                $selectedThumb = $selectedItem->getFirstMediaUrl('library', 'thumb');
                 $selectedMedia = $selectedItem->getFirstMedia('library');
                 $pageCount = $this->getPdfPageCount($selectedItem);
             @endphp
