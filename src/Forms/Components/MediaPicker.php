@@ -41,6 +41,11 @@ class MediaPicker extends ModalTableSelect
         ]);
     }
 
+    public function getInValidationRuleValues(): ?array
+    {
+        return null;
+    }
+
     public function getSelectAction(): Action
     {
         return Action::make('select')
@@ -110,6 +115,10 @@ class MediaPicker extends ModalTableSelect
      */
     public function getSelectedItems(): array
     {
+        if (! isset($this->container)) {
+            return [];
+        }
+
         $state = $this->getState();
         $ids = $this->isMultiple() ? (array) ($state ?? []) : (filled($state) ? [$state] : []);
 
