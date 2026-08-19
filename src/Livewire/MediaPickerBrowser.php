@@ -6,6 +6,7 @@ use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
@@ -147,17 +148,28 @@ class MediaPickerBrowser extends Component implements HasActions, HasSchemas
                     )
                     ->disk('public')
                     ->directory('media-library-uploads')
+                    ->storeFileNamesIn('file_names')
                     ->required(),
+                Hidden::make('file_names'),
             ])
             ->action(function (array $data): void {
                 $newIds = [];
+                $originalNames = (array) ($data['file_names'] ?? []);
 
                 foreach ((array) $data['files'] as $path) {
                     $item = MediaLibraryItem::create([
                         'uploaded_by_user_id' => auth()->id(),
                         'folder_id' => $this->folderId,
                     ]);
-                    $item->addMediaFromDisk($path, 'public')->toMediaCollection('library');
+
+                    $media = $item->addMediaFromDisk($path, 'public');
+
+                    if ($originalName = $originalNames[$path] ?? null) {
+                        $media->usingFileName($originalName)
+                            ->usingName(pathinfo($originalName, PATHINFO_FILENAME));
+                    }
+
+                    $media->toMediaCollection('library');
                     $newIds[] = $item->getKey();
                 }
 
