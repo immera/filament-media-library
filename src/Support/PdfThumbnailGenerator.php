@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Imagick;
 use Spatie\MediaLibrary\Conversions\Conversion;
 use Spatie\MediaLibrary\Conversions\ImageGenerators\ImageGenerator;
+use Spatie\PdfToImage\Pdf;
 
 class PdfThumbnailGenerator extends ImageGenerator
 {
@@ -24,7 +25,7 @@ class PdfThumbnailGenerator extends ImageGenerator
             return false;
         }
 
-        if (! class_exists(\Spatie\PdfToImage\Pdf::class)) {
+        if (! class_exists(Pdf::class)) {
             return false;
         }
 

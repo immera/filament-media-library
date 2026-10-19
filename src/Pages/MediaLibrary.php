@@ -126,6 +126,10 @@ class MediaLibrary extends Page
 
         if ($this->acceptDocument()) {
             $types[] = 'application/pdf';
+            $types[] = 'application/msword';
+            $types[] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            $types[] = 'application/zip';
+            $types[] = 'application/x-zip-compressed';
         }
 
         return $types;

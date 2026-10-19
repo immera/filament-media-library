@@ -5,6 +5,7 @@ namespace Immera\FilamentMediaLibrary\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Foundation\Auth\User;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -54,7 +55,7 @@ class MediaLibraryItem extends Model implements HasMedia
     }
 
     /**
-     * @return BelongsTo<\Illuminate\Foundation\Auth\User, $this>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
