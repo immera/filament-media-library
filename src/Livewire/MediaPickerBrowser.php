@@ -22,6 +22,8 @@ class MediaPickerBrowser extends Component implements HasActions, HasSchemas
     use InteractsWithActions;
     use InteractsWithSchemas;
 
+    protected const LAST_FOLDER_SESSION_KEY = 'filament-media-library.picker.last-folder-id';
+
     public ?int $folderId = null;
     public string $search = '';
     public bool $multiple = false;
@@ -44,11 +46,25 @@ class MediaPickerBrowser extends Component implements HasActions, HasSchemas
         $this->acceptedFileTypes = $acceptedFileTypes;
         $this->selected = $initialSelection;
         $this->statePath = $statePath;
+        $this->folderId = $this->getLastOpenedFolderId();
     }
 
     public function openFolder(?int $folderId): void
     {
         $this->folderId = $folderId;
+
+        session()->put(static::LAST_FOLDER_SESSION_KEY, $folderId);
+    }
+
+    protected function getLastOpenedFolderId(): ?int
+    {
+        $folderId = session()->get(static::LAST_FOLDER_SESSION_KEY);
+
+        if (! $folderId || ! MediaLibraryFolder::query()->whereKey($folderId)->exists()) {
+            return null;
+        }
+
+        return (int) $folderId;
     }
 
     public function toggleSelect(int $itemId): void
