@@ -14,6 +14,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Immera\FilamentMediaLibrary\Models\MediaLibraryFolder;
 use Immera\FilamentMediaLibrary\Models\MediaLibraryItem;
+use Immera\FilamentMediaLibrary\Pages\MediaLibrary;
 use Livewire\Component;
 
 class MediaPickerBrowser extends Component implements HasActions, HasSchemas
@@ -133,6 +134,21 @@ class MediaPickerBrowser extends Component implements HasActions, HasSchemas
             ->get();
     }
 
+    /**
+     * Fall back to the media library's defaults so the picker never accepts
+     * file types that the main media library upload would reject.
+     *
+     * @return array<string>
+     */
+    protected function getUploadAcceptedFileTypes(): array
+    {
+        if (filled($this->acceptedFileTypes)) {
+            return $this->acceptedFileTypes;
+        }
+
+        return app(MediaLibrary::class)->getAcceptedFileTypes();
+    }
+
     public function uploadAction(): Action
     {
         return Action::make('upload')
@@ -142,10 +158,7 @@ class MediaPickerBrowser extends Component implements HasActions, HasSchemas
                 FileUpload::make('files')
                     ->label(__('file'))
                     ->multiple()
-                    ->when(
-                        filled($this->acceptedFileTypes),
-                        fn (FileUpload $fileUpload) => $fileUpload->acceptedFileTypes($this->acceptedFileTypes),
-                    )
+                    ->acceptedFileTypes($this->getUploadAcceptedFileTypes())
                     ->disk('public')
                     ->directory('media-library-uploads')
                     ->storeFileNamesIn('file_names')

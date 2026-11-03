@@ -8,7 +8,9 @@ use Filament\Forms\Components\ModalTableSelect;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Immera\FilamentMediaLibrary\Models\MediaLibraryItem;
+use Immera\FilamentMediaLibrary\Pages\MediaLibrary;
 
 class MediaPicker extends ModalTableSelect
 {
@@ -39,6 +41,46 @@ class MediaPicker extends ModalTableSelect
         $this->registerActions([
             fn (self $component): Action => $component->getClearAction(),
         ]);
+
+        $this->rule(static fn (self $component): Closure => function (string $attribute, mixed $value, Closure $fail) use ($component): void {
+            $component->validateSelectedMedia($value, $fail);
+        });
+    }
+
+    /**
+     * Server-side check that every selected item exists and its file type is accepted,
+     * so a disallowed file (e.g. HTML) can't be attached by picking it or tampering with the state.
+     */
+    public function validateSelectedMedia(mixed $value, Closure $fail): void
+    {
+        $ids = collect(Arr::wrap($value))->filter(fn ($id): bool => filled($id))->unique()->values();
+
+        if ($ids->isEmpty()) {
+            return;
+        }
+
+        $items = MediaLibraryItem::query()->with('media')->whereIn('id', $ids)->get();
+
+        if ($items->count() !== $ids->count()) {
+            $fail(__('validation.exists', ['attribute' => $this->getValidationAttribute()]));
+
+            return;
+        }
+
+        $acceptedTypes = $this->getAcceptedFileTypes();
+
+        foreach ($items as $item) {
+            $mimeType = (string) $item->getFirstMedia('library')?->mime_type;
+
+            if (! Str::is($acceptedTypes, $mimeType)) {
+                $fail(__('validation.mimetypes', [
+                    'attribute' => $this->getValidationAttribute(),
+                    'values' => implode(', ', $acceptedTypes),
+                ]));
+
+                return;
+            }
+        }
     }
 
     public function getInValidationRuleValues(): ?array
@@ -107,7 +149,11 @@ class MediaPicker extends ModalTableSelect
      */
     public function getAcceptedFileTypes(): array
     {
-        return (array) $this->evaluate($this->acceptedTypes);
+        $types = (array) $this->evaluate($this->acceptedTypes);
+
+        // Fall back to the media library's defaults so the picker never offers or accepts
+        // file types that the main media library upload would reject.
+        return filled($types) ? $types : app(MediaLibrary::class)->getAcceptedFileTypes();
     }
 
     /**
